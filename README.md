@@ -20,7 +20,10 @@ need Node.js if you want to change the website.
 
 ## Demo video
 
-A 3-minute walkthrough is in [`Demo_video.mov`](Demo_video.mov).
+▶️ **[Watch the 3-minute demo video](https://drive.google.com/file/d/1WuPH0QTFZx44LNciqhf1mP_21ZmbVgAm/view?usp=sharing)** (Google Drive)
+
+It shows the whole flow: uploading data, building and checking a report, the other hotel being locked out,
+a reviewer approving it, recounting the raw data, and downloading the approved report.
 
 ---
 
@@ -255,7 +258,6 @@ frontend/              the Night Audit website (React); dist/ is the built copy 
 web/index.html         the older single-page website, served at /classic
 data/samples/          sample CSV files          data/tenants/   the hotel databases (created when it runs)
 exports/<hotel>/       downloaded reports        tests/          automated tests
-Demo_video.mov         the recorded demo video
 ```
 
 ---
