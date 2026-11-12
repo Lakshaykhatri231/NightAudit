@@ -274,8 +274,3 @@ exports/<hotel>/       downloaded reports        tests/          automated tests
   There's no HTTPS: it is meant to run on your own computer.
 - PDFs come from printing the HTML report in the browser, to avoid extra packages.
 - Python's built-in web server and SQLite are fine for a demo, not for heavy use.
-
-## Possible next steps
-Connect to the real platforms (Meta and TikTok business APIs) on a schedule · move to a production database ·
-company single sign-on and proper user management · PDF files and emailing approved reports · let reviewers
-comment on individual numbers.
