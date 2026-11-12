@@ -1,0 +1,573 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hotel Social Reports</title>
+<style>
+:root {
+  color-scheme: light;
+  --bg: #f4f4f1; --surface: #fcfcfb; --surface-2: #f0efec;
+  --ink: #0b0b0b; --ink-2: #52514e; --muted: #898781;
+  --line: #e1e0d9; --line-2: #c3c2b7; --ring: rgba(11,11,11,.10);
+  --accent: #1f5fae; --accent-ink: #fff;
+  --good: #006300; --good-bg: #e6f4e6; --warn: #8a5a00; --warn-bg: #fdf3dc;
+  --bad: #b42318; --bad-bg: #fdecea;
+  --p-instagram: #2a78d6; --p-facebook: #eb6834; --p-tiktok: #1baf7a;
+  --brand: #1f5fae;
+  --shadow: 0 1px 2px rgba(0,0,0,.05), 0 4px 16px rgba(0,0,0,.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #0d0d0d; --surface: #1a1a19; --surface-2: #232321;
+    --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+    --line: #2c2c2a; --line-2: #383835; --ring: rgba(255,255,255,.10);
+    --accent: #5a9be6; --accent-ink: #0b0b0b;
+    --good: #3fbf3f; --good-bg: #13261a; --warn: #f0b429; --warn-bg: #2b2412;
+    --bad: #f07167; --bad-bg: #2d1615;
+    --p-instagram: #3987e5; --p-facebook: #d95926; --p-tiktok: #199e70;
+    --shadow: none;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #0d0d0d; --surface: #1a1a19; --surface-2: #232321;
+  --ink: #f0efec; --ink-2: #c3c2b7; --muted: #898781;
+  --line: #2c2c2a; --line-2: #383835; --ring: rgba(255,255,255,.10);
+  --accent: #5a9be6; --accent-ink: #0b0b0b;
+  --good: #3fbf3f; --good-bg: #13261a; --warn: #f0b429; --warn-bg: #2b2412;
+  --bad: #f07167; --bad-bg: #2d1615;
+  --p-instagram: #3987e5; --p-facebook: #d95926; --p-tiktok: #199e70;
+  --shadow: none;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { font: 15px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--ink); background: var(--bg); }
+button, input, textarea { font: inherit; color: inherit; }
+.hidden { display: none !important; }
+.muted { color: var(--muted); }
+.small { font-size: 13px; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line-2); background: var(--surface);
+  padding: 8px 14px; border-radius: 8px; cursor: pointer; font-weight: 550; text-decoration: none; color: var(--ink); }
+.btn:hover:not(:disabled) { background: var(--surface-2); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover:not(:disabled) { filter: brightness(1.08); background: var(--accent); }
+.btn.good { background: var(--good); border-color: var(--good); color: #fff; }
+.btn.danger { color: var(--bad); border-color: var(--bad); }
+.btn:disabled { opacity: .45; cursor: not-allowed; }
+.btn.ghost { border-color: transparent; background: transparent; }
+
+/* login */
+#login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+.login-card { width: 100%; max-width: 420px; background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 28px; box-shadow: var(--shadow); }
+.logo { display: flex; align-items: center; gap: 10px; font-weight: 700; font-size: 20px; }
+.logo-mark { width: 34px; height: 34px; border-radius: 9px; background: var(--accent); color: var(--accent-ink);
+  display: grid; place-items: center; font-size: 18px; }
+label { display: block; font-size: 13px; color: var(--ink-2); margin: 14px 0 4px; font-weight: 550; }
+input[type=text], input[type=password], input[type=date], textarea {
+  width: 100%; padding: 9px 11px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--surface); }
+input:focus, textarea:focus, .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.demo-users { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.demo-user { text-align: left; border: 1px solid var(--line); background: var(--surface-2); border-radius: 8px; padding: 8px 10px;
+  cursor: pointer; }
+.demo-user:hover { border-color: var(--accent); }
+.demo-user b { display: block; font-size: 13px; } .demo-user span { font-size: 12px; color: var(--muted); }
+.err { color: var(--bad); font-size: 14px; min-height: 20px; margin-top: 10px; }
+
+/* app shell */
+.topbar { background: var(--brand); color: #fff; }
+.topbar-inner { max-width: 1120px; margin: 0 auto; padding: 14px 16px; display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+.hotel { flex: 1; min-width: 200px; }
+.hotel h1 { margin: 0; font-size: 20px; } .hotel p { margin: 0; font-size: 13px; opacity: .85; }
+.who { display: flex; align-items: center; gap: 10px; font-size: 14px; flex-wrap: wrap; }
+.role { background: rgba(255,255,255,.18); border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 650;
+  text-transform: uppercase; letter-spacing: .04em; }
+.topbar .btn { background: rgba(255,255,255,.12); border-color: rgba(255,255,255,.35); color: #fff; padding: 6px 12px; }
+.topbar .btn:hover { background: rgba(255,255,255,.22); }
+main { max-width: 1120px; margin: 0 auto; padding: 18px 16px 60px; }
+
+.banner { border-radius: 10px; padding: 12px 14px; margin-bottom: 14px; display: flex; gap: 10px; align-items: flex-start; }
+.banner.bad { background: var(--bad-bg); color: var(--bad); border: 1px solid var(--bad); }
+.banner.good { background: var(--good-bg); color: var(--good); border: 1px solid var(--good); }
+.banner b { display: block; }
+.banner .x { margin-left: auto; cursor: pointer; background: none; border: 0; color: inherit; font-size: 18px; line-height: 1; }
+
+/* stepper */
+.steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-bottom: 18px; }
+.step { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border-radius: 10px; border: 1px solid var(--line);
+  background: var(--surface); cursor: pointer; text-align: left; }
+.step .n { flex: none; width: 26px; height: 26px; border-radius: 50%; display: grid; place-items: center; font-weight: 700;
+  font-size: 13px; background: var(--surface-2); color: var(--ink-2); }
+.step .t { font-weight: 600; font-size: 14px; line-height: 1.2; } .step .s { font-size: 12px; color: var(--muted); }
+.step.active { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.step.active .n { background: var(--accent); color: var(--accent-ink); }
+.step.done .n { background: var(--good); color: #fff; }
+@media (max-width: 760px) { .steps { grid-template-columns: 1fr 1fr; } }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 18px; box-shadow: var(--shadow); margin-bottom: 14px; }
+.card h2 { margin: 0 0 4px; font-size: 18px; } .card h3 { margin: 0 0 10px; font-size: 15px; }
+.card-head { display: flex; align-items: flex-start; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
+.card-head > div:first-child { flex: 1; min-width: 220px; }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+@media (max-width: 760px) { .grid2 { grid-template-columns: 1fr; } }
+
+.drop { border: 2px dashed var(--line-2); border-radius: 12px; padding: 26px; text-align: center; cursor: pointer; }
+.drop.over { border-color: var(--accent); background: var(--surface-2); }
+.drop b { display: block; font-size: 16px; }
+
+.stats { display: flex; gap: 10px; flex-wrap: wrap; margin: 12px 0; }
+.stat { padding: 10px 14px; border-radius: 10px; background: var(--surface-2); min-width: 120px; }
+.stat .v { font-size: 22px; font-weight: 700; } .stat .l { font-size: 12px; color: var(--ink-2); }
+.stat.good .v { color: var(--good); } .stat.bad .v { color: var(--bad); }
+ul.rejects { list-style: none; padding: 0; margin: 0; }
+ul.rejects li { padding: 7px 10px; border-left: 3px solid var(--bad); background: var(--bad-bg); margin-bottom: 6px; border-radius: 0 6px 6px 0; font-size: 14px; }
+
+/* report view */
+.pill { display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; padding: 2px 10px; font-size: 12px; font-weight: 650; }
+.pill.draft { background: var(--surface-2); color: var(--ink-2); }
+.pill.pending_review { background: var(--warn-bg); color: var(--warn); }
+.pill.approved { background: var(--good-bg); color: var(--good); }
+.pill.rejected { background: var(--bad-bg); color: var(--bad); }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.tile { border: 1px solid var(--line); border-radius: 10px; padding: 12px; background: var(--surface); }
+.tile .l { font-size: 13px; color: var(--ink-2); } .tile .v { font-size: 26px; font-weight: 700; line-height: 1.25; }
+.tile .d { font-size: 12px; } .up { color: var(--good); } .down { color: var(--bad); }
+ul.narr { margin: 0; padding-left: 18px; } ul.narr li { margin-bottom: 6px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 8px; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; } th { color: var(--ink-2); font-weight: 600; font-size: 13px; }
+tr.total td { font-weight: 700; border-top: 2px solid var(--line-2); }
+.tw { overflow-x: auto; }
+table.hist td:nth-child(2), table.hist td:nth-child(3), table.hist th:nth-child(2), table.hist th:nth-child(3), table.hist td:last-child, table.hist th:last-child { text-align: left; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 7px; vertical-align: 0; }
+ul.checks { list-style: none; margin: 0; padding: 0; }
+ul.checks li { display: flex; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--line); }
+ul.checks li:last-child { border-bottom: 0; }
+.ic { flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; font-size: 13px; font-weight: 800; color: #fff; }
+.ic.pass { background: var(--good); } .ic.warn { background: #c98500; } .ic.fail { background: #d03b3b; }
+ul.checks b { display: block; font-size: 14px; } ul.checks span { font-size: 13px; color: var(--ink-2); }
+.chart { position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { font-size: 11px; fill: var(--muted); } .chart text.v { fill: var(--ink); font-size: 12px; font-weight: 600; }
+.chart .grid { stroke: var(--line); } .chart .base { stroke: var(--line-2); }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12px; padding: 5px 8px;
+  border-radius: 6px; white-space: nowrap; transform: translate(-50%, -110%); z-index: 5; }
+.legend { display: flex; gap: 14px; font-size: 13px; color: var(--ink-2); margin-top: 6px; flex-wrap: wrap; }
+
+.list { display: flex; flex-direction: column; gap: 6px; }
+.ritem { display: flex; gap: 10px; align-items: center; padding: 10px 12px; border: 1px solid var(--line); border-radius: 10px;
+  cursor: pointer; background: var(--surface); text-align: left; width: 100%; }
+.ritem:hover { border-color: var(--line-2); }
+.ritem.sel { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent); }
+.ritem .grow { flex: 1; } .ritem .sub { font-size: 12px; color: var(--muted); }
+.timeline { list-style: none; padding: 0; margin: 0; }
+.timeline li { padding: 6px 0 6px 16px; border-left: 2px solid var(--line-2); position: relative; font-size: 14px; }
+.timeline li::before { content: ""; position: absolute; left: -6px; top: 12px; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); }
+.timeline .when { font-size: 12px; color: var(--muted); }
+.lock { padding: 14px; border-radius: 10px; background: var(--surface-2); display: flex; gap: 10px; align-items: center; margin-bottom: 12px; }
+.export-btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.export-btns .btn { padding: 12px 18px; }
+textarea { min-height: 70px; resize: vertical; }
+.hint { font-size: 12px; color: var(--muted); margin-top: 6px; }
+
+.verdict { border-radius: 10px; padding: 12px 14px; margin: 4px 0 12px; border-left: 5px solid; }
+.verdict.good { background: var(--good-bg); border-color: var(--good); } .verdict.warn { background: var(--warn-bg); border-color: var(--warn); }
+.verdict.bad { background: var(--bad-bg); border-color: var(--bad); } .verdict.neutral { background: var(--surface-2); border-color: var(--line-2); }
+.verdict .vl { font-size: 12px; font-weight: 750; text-transform: uppercase; letter-spacing: .05em; }
+.verdict.good .vl { color: var(--good); } .verdict.warn .vl { color: var(--warn); } .verdict.bad .vl { color: var(--bad); } .verdict.neutral .vl { color: var(--ink-2); }
+.verdict .vh { font-size: 18px; font-weight: 650; line-height: 1.35; margin-top: 2px; }
+details.checkbox summary { cursor: pointer; display: flex; gap: 10px; align-items: center; list-style: none; }
+details.checkbox summary::-webkit-details-marker { display: none; }
+details.checkbox[open] summary { margin-bottom: 8px; }
+.ww { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; } .ww h3 { margin: 4px 0 6px; font-size: 14px; }
+@media (max-width: 760px) { .ww { grid-template-columns: 1fr; } }
+.reviewgrid { grid-template-columns: minmax(240px, .8fr) minmax(0, 2.2fr); align-items: start; }
+@media (max-width: 900px) { .reviewgrid { grid-template-columns: 1fr; } }
+.docwrap { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #f6f5f2; margin-bottom: 14px; }
+.dochead { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px 6px 14px; background: var(--surface);
+  border-bottom: 1px solid var(--line); font-size: 13px; font-weight: 600; color: var(--ink-2); }
+.dochead .btn { padding: 4px 10px; font-size: 13px; }
+iframe.doc { display: block; width: 100%; height: 1400px; border: 0; background: #f6f5f2; }
+#toast { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--surface);
+  padding: 10px 16px; border-radius: 10px; font-size: 14px; z-index: 50; box-shadow: 0 6px 20px rgba(0,0,0,.2); max-width: calc(100% - 32px); }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section id="login" class="hidden">
+  <div class="login-card">
+    <div class="logo"><div class="logo-mark">▤</div>Hotel Social Reports</div>
+    <p class="muted small" style="margin:6px 0 0">Import social-media metrics, generate client reports, approve, export.</p>
+    <form id="login-form" autocomplete="off">
+      <label for="u">Username</label>
+      <input id="u" type="text" placeholder="e.g. anna@harbourlight" required>
+      <label for="pw">Password</label>
+      <input id="pw" type="password" placeholder="demo123" required>
+      <div class="err" id="login-err"></div>
+      <button class="btn primary" style="width:100%;justify-content:center;margin-top:4px" type="submit">Sign in</button>
+    </form>
+    <label style="margin-top:20px">Demo accounts <span class="muted">(click to fill · password demo123)</span></label>
+    <div class="demo-users" id="demo-users"></div>
+  </div>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="hidden">
+  <div class="topbar"><div class="topbar-inner">
+    <div class="hotel"><h1 id="hotel-name"></h1><p id="hotel-loc"></p></div>
+    <div class="who">
+      <button class="btn" id="iso-btn" title="Attempt to read the other hotel's data — should be refused">🔒 Test isolation</button>
+      <span id="who-name"></span><span class="role" id="who-role"></span>
+      <button class="btn" id="logout">Sign out</button>
+    </div>
+  </div></div>
+  <main>
+    <div id="banner"></div>
+    <nav class="steps" id="steps"></nav>
+
+    <!-- STEP 1: IMPORT -->
+    <div data-step="1" class="panel">
+      <div class="card">
+        <div class="card-head"><div><h2>1 · Import social-media data</h2>
+          <div class="muted small">CSV with one row per day per platform (Instagram, Facebook, TikTok). Rows are validated before anything is stored.</div></div>
+          <div id="data-on-file" class="small muted"></div></div>
+        <div id="import-tools">
+          <div class="drop" id="drop" tabindex="0"><b>Drop a CSV here or click to choose</b>
+            <span class="muted small">Required columns: date, platform, followers, impressions, reach, likes, comments, shares, saves, link_clicks, posts, website_bookings_attributed</span></div>
+          <input type="file" id="file" accept=".csv,text/csv,application/json" class="hidden">
+          <div class="row" style="margin-top:12px">
+            <button class="btn primary" id="use-sample">Use this hotel's sample file</button>
+          </div>
+        </div>
+        <div id="import-readonly" class="lock hidden">🔒 <span>Only analysts can import data. You can see the import history below.</span></div>
+      </div>
+      <div id="import-result"></div>
+      <div class="card"><h3>Import history</h3><div id="import-history" class="tw"></div></div>
+    </div>
+
+    <!-- STEP 2: GENERATE -->
+    <div data-step="2" class="panel hidden">
+      <div class="card">
+        <div class="card-head"><div><h2>2 · Generate report</h2>
+          <div class="muted small">Numbers are calculated from the imported data and independently re-checked. The summary text uses only those numbers.</div></div></div>
+        <div class="row">
+          <div><label for="start">From</label><input type="date" id="start"></div>
+          <div><label for="end">To</label><input type="date" id="end"></div>
+          <button class="btn primary" id="gen">Generate report</button>
+        </div>
+        <div class="hint" id="gen-hint"></div>
+      </div>
+      <div id="report-view"></div>
+    </div>
+
+    <!-- STEP 3: REVIEW -->
+    <div data-step="3" class="panel hidden">
+      <div class="grid2 reviewgrid">
+        <div class="card"><h3>Reports</h3><div class="list" id="report-list"></div></div>
+        <div id="review-pane"></div>
+      </div>
+    </div>
+
+    <!-- STEP 4: EXPORT -->
+    <div data-step="4" class="panel hidden"><div id="export-pane"></div></div>
+  </main>
+</section>
+
+<div id="toast" class="hidden"></div>
+
+<script>
+"use strict";
+const DEMO = [
+  ["anna@harbourlight", "Anna Patel", "Harbourlight · Analyst"],
+  ["rob@harbourlight", "Rob Chen", "Harbourlight · Reviewer"],
+  ["paul@pinecrest", "Paul Okafor", "Pinecrest · Analyst"],
+  ["rita@pinecrest", "Rita Novak", "Pinecrest · Reviewer"],
+];
+const OTHER = { harbourlight: ["pinecrest", "Pinecrest Mountain Lodge"], pinecrest: ["harbourlight", "Harbourlight Boutique Hotel"] };
+const PLAT = { instagram: "Instagram", facebook: "Facebook", tiktok: "TikTok" };
+const STEPS = [["Import data", "Upload & validate"], ["Generate report", "KPIs & accuracy checks"],
+               ["Review & approve", "Human sign-off"], ["Export", "Approved files only"]];
+const STATUS = { draft: "Draft", pending_review: "Pending review", approved: "Approved", rejected: "Rejected" };
+
+const S = { me: null, overview: null, reports: [], imports: [], sel: null, selReport: null, step: 1, lastImport: null };
+const $ = (id) => document.getElementById(id);
+const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const fInt = (n) => n == null ? "n/a" : Number(n).toLocaleString("en-GB");
+const fPct = (x, d = 2) => x == null ? "n/a" : (x * 100).toFixed(d) + "%";
+const fChg = (x) => x == null ? "n/a" : (x >= 0 ? "+" : "") + (x * 100).toFixed(1) + "%";
+const fWhen = (iso) => iso ? new Date(iso).toLocaleString("en-GB", { day: "numeric", month: "short", hour: "2-digit", minute: "2-digit" }) : "";
+const userName = (u) => (DEMO.find((d) => d[0] === u) || [u, u])[1];
+const isAnalyst = () => S.me && S.me.role === "analyst";
+const base = () => `/api/clients/${S.me.client_id}`;
+
+async function api(method, path, body, headers = {}) {
+  const opts = { method, headers: { ...headers } };
+  if (body !== undefined) {
+    if (typeof body === "string") opts.body = body;
+    else { opts.body = JSON.stringify(body); opts.headers["Content-Type"] = "application/json"; }
+  }
+  const res = await fetch(path, opts);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) { const e = new Error(data.error || res.statusText); e.status = res.status; e.data = data; throw e; }
+  return data;
+}
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.classList.remove("hidden");
+  clearTimeout(toast._t); toast._t = setTimeout(() => t.classList.add("hidden"), 3200);
+}
+function banner(kind, title, text) {
+  $("banner").innerHTML = `<div class="banner ${kind}"><div><b>${esc(title)}</b>${esc(text)}</div>
+    <button class="x" aria-label="Dismiss" onclick="this.parentElement.remove()">×</button></div>`;
+}
+function fail(e) {
+  if (e.status === 401) return showLogin();
+  if (e.status === 403) banner("bad", "⛔ Access denied (403)", e.message);
+  else toast("⚠ " + e.message);
+}
+
+/* ---------------- login ---------------- */
+function showLogin() {
+  S.me = null; $("app").classList.add("hidden"); $("login").classList.remove("hidden");
+  $("demo-users").innerHTML = DEMO.map(([u, n, r]) =>
+    `<button class="demo-user" type="button" data-u="${u}"><b>${n}</b><span>${r}</span></button>`).join("");
+  document.querySelectorAll(".demo-user").forEach((b) => b.onclick = () => { $("u").value = b.dataset.u; $("pw").value = "demo123"; $("pw").focus(); });
+  $("u").focus();
+}
+$("login-form").onsubmit = async (ev) => {
+  ev.preventDefault(); $("login-err").textContent = "";
+  try { S.me = await api("POST", "/api/login", { username: $("u").value, password: $("pw").value }); $("pw").value = ""; await enterApp(); }
+  catch (e) { $("login-err").textContent = e.message; }
+};
+$("logout").onclick = async () => { await api("POST", "/api/logout").catch(() => {}); $("banner").innerHTML = ""; S.lastImport = null; S.sel = null; S.selReport = null; showLogin(); };
+
+async function enterApp() {
+  $("login").classList.add("hidden"); $("app").classList.remove("hidden");
+  document.documentElement.style.setProperty("--brand", S.me.brand);
+  $("hotel-name").textContent = S.me.client_name;
+  $("who-name").textContent = S.me.name; $("who-role").textContent = S.me.role;
+  $("iso-btn").textContent = `🔒 Try opening ${OTHER[S.me.client_id][1].split(" ")[0]} data`;
+  $("import-tools").classList.toggle("hidden", !isAnalyst());
+  $("import-readonly").classList.toggle("hidden", isAnalyst());
+  $("gen").disabled = !isAnalyst();
+  $("gen-hint").textContent = isAnalyst() ? "" : "Only analysts can generate reports. Reviewers approve them in step 3.";
+  await refresh();
+  const pending = S.reports.find((r) => r.status === "pending_review");
+  if (!isAnalyst()) { if (pending) S.sel = pending.id; go(3); }
+  else go(S.overview.data_range.rows ? 2 : 1);
+}
+
+/* ---------------- data loading ---------------- */
+async function refresh() {
+  const [ov, reps, imps] = await Promise.all([api("GET", base()), api("GET", base() + "/reports"), api("GET", base() + "/imports")]);
+  S.overview = ov; S.reports = reps; S.imports = imps;
+  $("hotel-loc").textContent = ov.location + " · fictional client, synthetic data";
+  if (!S.sel || !reps.find((r) => r.id === S.sel)) S.sel = reps.length ? reps[0].id : null;
+  S.selReport = S.sel ? await api("GET", `${base()}/reports/${S.sel}`) : null;
+  const dr = ov.data_range;
+  $("data-on-file").innerHTML = dr.rows ? `Data on file: <b>${esc(dr.start)} → ${esc(dr.end)}</b> · ${fInt(dr.rows)} rows` : "No data imported yet";
+  if (dr.rows && !$("start").value) {
+    const end = new Date(dr.end + "T00:00:00Z");
+    const last = new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth() + 1, 0)).getUTCDate() === end.getUTCDate();
+    const m = last ? end : new Date(Date.UTC(end.getUTCFullYear(), end.getUTCMonth(), 0));
+    const y = m.getUTCFullYear(), mo = String(m.getUTCMonth() + 1).padStart(2, "0");
+    $("start").value = `${y}-${mo}-01`; $("end").value = `${y}-${mo}-${String(m.getUTCDate()).padStart(2, "0")}`;
+  }
+  render();
+}
+async function select(id) { S.sel = id; S.selReport = await api("GET", `${base()}/reports/${id}`); render(); }
+
+/* ---------------- stepper ---------------- */
+function go(n) { S.step = n; render(); window.scrollTo({ top: 0, behavior: "smooth" }); }
+function render() {
+  const r = S.selReport;
+  const done = [S.overview?.data_range.rows > 0, !!r, r && ["approved"].includes(r.status), false];
+  $("steps").innerHTML = STEPS.map(([t, s], i) =>
+    `<button class="step ${S.step === i + 1 ? "active" : ""} ${done[i] ? "done" : ""}" data-n="${i + 1}">
+       <span class="n">${done[i] ? "✓" : i + 1}</span><span><span class="t">${t}</span><br><span class="s">${s}</span></span></button>`).join("");
+  document.querySelectorAll(".step").forEach((b) => b.onclick = () => go(+b.dataset.n));
+  document.querySelectorAll(".panel").forEach((p) => p.classList.toggle("hidden", +p.dataset.step !== S.step));
+  renderImport(); renderReport(); renderReview(); renderExport();
+  requestAnimationFrame(refitFrames);
+}
+
+/* ---------------- step 1 ---------------- */
+function renderImport() {
+  const res = S.lastImport;
+  $("import-result").innerHTML = !res ? "" : `<div class="card">
+    <div class="card-head"><div><h3 style="margin:0">Import result · ${esc(res.filename)}</h3>
+      <div class="small muted">${res.date_range ? `Dates ${esc(res.date_range.start)} → ${esc(res.date_range.end)}` : ""}</div></div>
+      ${res.rows_ok && isAnalyst() ? `<button class="btn primary" onclick="go(2)">Next: generate report →</button>` : ""}</div>
+    <div class="stats"><div class="stat"><div class="v">${fInt(res.rows_total)}</div><div class="l">rows in file</div></div>
+      <div class="stat good"><div class="v">${fInt(res.rows_ok)}</div><div class="l">✓ accepted</div></div>
+      <div class="stat bad"><div class="v">${fInt(res.rows_rejected)}</div><div class="l">✗ rejected</div></div></div>
+    ${res.errors.length ? `<b class="small">Rejected rows (not imported):</b><ul class="rejects">${res.errors.map((e) =>
+      `<li>${e.row ? `Line ${e.row}: ` : ""}${esc(e.reason)}</li>`).join("")}</ul>` : `<div class="small up">All rows passed validation.</div>`}
+  </div>`;
+  $("import-history").innerHTML = !S.imports.length ? `<span class="muted small">No imports yet.</span>` :
+    `<table class="hist"><tr><th>When</th><th>File</th><th>By</th><th>Accepted</th><th>Rejected</th><th>Status</th></tr>${S.imports.map((i) =>
+      `<tr><td>${fWhen(i.created_at)}</td><td>${esc(i.filename)}</td><td>${esc(userName(i.imported_by))}</td>
+       <td>${fInt(i.rows_ok)}</td><td>${fInt(i.rows_rejected)}</td><td>${esc(i.status.replaceAll("_", " "))}</td></tr>`).join("")}</table>`;
+}
+async function doImport(text, filename, isJson) {
+  try {
+    S.lastImport = await api("POST", base() + "/imports", text, { "Content-Type": isJson ? "application/json" : "text/csv", "X-Filename": filename });
+    toast(`Imported ${S.lastImport.rows_ok} rows, rejected ${S.lastImport.rows_rejected}`);
+    await refresh();
+  } catch (e) {
+    if (e.status === 403) { banner("bad", "⛔ File rejected", e.message); await refresh(); } else fail(e);
+  }
+}
+$("use-sample").onclick = async () => {
+  try { S.lastImport = await api("POST", base() + "/imports/sample"); toast(`Imported ${S.lastImport.rows_ok} rows, rejected ${S.lastImport.rows_rejected}`); await refresh(); }
+  catch (e) { fail(e); }
+};
+const drop = $("drop");
+drop.onclick = () => $("file").click();
+drop.onkeydown = (e) => { if (e.key === "Enter" || e.key === " ") $("file").click(); };
+drop.ondragover = (e) => { e.preventDefault(); drop.classList.add("over"); };
+drop.ondragleave = () => drop.classList.remove("over");
+drop.ondrop = (e) => { e.preventDefault(); drop.classList.remove("over"); readFile(e.dataTransfer.files[0]); };
+$("file").onchange = (e) => { readFile(e.target.files[0]); e.target.value = ""; };
+function readFile(f) { if (!f) return; f.text().then((t) => doImport(t, f.name, f.name.toLowerCase().endsWith(".json"))); }
+
+/* ---------------- step 2 ---------------- */
+$("gen").onclick = async () => {
+  try {
+    const r = await api("POST", base() + "/reports", { period_start: $("start").value, period_end: $("end").value });
+    S.sel = r.id; toast(`Report #${r.id} generated (draft)`); await refresh();
+  } catch (e) { fail(e); }
+};
+function pill(s) { return `<span class="pill ${s}">${s === "approved" ? "✓ " : s === "rejected" ? "✗ " : s === "pending_review" ? "⏳ " : ""}${STATUS[s]}</span>`; }
+const TONE = { good: "good", warn: "warn", bad: "bad", neutral: "neutral" };
+function verdictBlock(p) {
+  const v = p.insights.verdict;
+  return `<div class="verdict ${TONE[v.tone]}"><span class="vl">${esc(v.icon)} ${esc(v.label)}</span>
+    <div class="vh">${esc(p.insights.headline)}</div></div>`;
+}
+function checksBlock(p) {
+  return `<ul class="checks">${p.checks.map((k) =>
+    `<li><span class="ic ${k.status}">${k.status === "pass" ? "✓" : k.status === "warn" ? "!" : "✗"}</span><div><b>${esc(k.name)}</b><span>${esc(k.detail)}</span></div></li>`).join("")}</ul>`;
+}
+function docFrame(r) {
+  // The real client document (watermarked while not approved), embedded so what you review is what the client gets.
+  return `<div class="docwrap"><div class="dochead"><span>📄 Client document preview</span>
+    <a class="btn ghost" target="_blank" href="${base()}/reports/${r.id}/export?format=html&preview=1">Open in new tab ↗</a></div>
+    <iframe class="doc" title="Client report preview" src="${base()}/reports/${r.id}/export?format=html&preview=1"></iframe></div>`;
+}
+function fitFrame(f) {
+  try { const h = f.contentDocument.documentElement.scrollHeight; if (h > 50 && f.offsetParent) f.style.height = h + "px"; } catch {}
+}
+function refitFrames() { document.querySelectorAll("iframe.doc").forEach(fitFrame); }
+function fitFrames() {
+  document.querySelectorAll("iframe.doc").forEach((f) => { f.onload = () => { fitFrame(f); setTimeout(() => fitFrame(f), 300); }; });
+}
+window.addEventListener("resize", refitFrames);
+function renderReport() {
+  const r = S.selReport, el = $("report-view");
+  if (!r) { el.innerHTML = ""; el.dataset.key = ""; return; }
+  const key = `${S.me.client_id}:${r.id}:${r.status}`;
+  if (el.dataset.key === key) return;  // avoid reloading the iframe needlessly
+  el.dataset.key = key;
+  const p = r.payload, failed = p.checks.some((k) => k.status === "fail");
+  const nPass = p.checks.filter((k) => k.status === "pass").length;
+  const action = r.status === "draft" && isAnalyst()
+    ? `<button class="btn primary" id="submit-btn" ${failed ? "disabled title='Fix failed accuracy checks first'" : ""}>Submit for review →</button>`
+    : r.status === "draft" ? "" : `<button class="btn" onclick="go(3)">Go to review →</button>`;
+  el.innerHTML = `<div class="card"><div class="card-head"><div>
+      <h2>${esc(p.client_name)} · ${esc(p.period.label)} ${pill(r.status)}</h2>
+      <div class="small muted">Report #${r.id} · prepared by ${esc(p.generated_by.name)} · ${fWhen(r.created_at)}</div></div>${action}</div>
+      ${verdictBlock(p)}
+      <details class="checkbox" ${failed ? "open" : ""}><summary><span class="ic ${failed ? "fail" : "pass"}">${failed ? "✗" : "✓"}</span>
+        <b>${nPass}/${p.checks.length} accuracy checks passed</b> <span class="muted small">— show details</span></summary>${checksBlock(p)}</details>
+    </div>${docFrame(r)}`;
+  fitFrames();
+  const sb = $("submit-btn");
+  if (sb) sb.onclick = async () => {
+    try { await api("POST", `${base()}/reports/${r.id}/submit`, { comment: "" }); toast("Submitted for review"); await refresh(); go(3); } catch (e) { fail(e); }
+  };
+}
+
+/* ---------------- step 3 ---------------- */
+function renderReview() {
+  $("report-list").innerHTML = !S.reports.length ? `<span class="muted small">No reports yet.</span>` :
+    S.reports.map((r) => `<button class="ritem ${r.id === S.sel ? "sel" : ""}" data-id="${r.id}"><span class="grow">
+      <b>#${r.id} · ${esc(r.period_start)} → ${esc(r.period_end)}</b><br><span class="sub">by ${esc(userName(r.created_by))} · ${fWhen(r.created_at)}</span></span>${pill(r.status)}</button>`).join("");
+  document.querySelectorAll(".ritem").forEach((b) => b.onclick = () => select(+b.dataset.id));
+  const r = S.selReport, el = $("review-pane");
+  if (!r) { el.innerHTML = `<div class="card muted">Select a report.</div>`; return; }
+  const p = r.payload, pending = r.status === "pending_review";
+  const canReview = pending && !isAnalyst() && r.created_by !== S.me.username;
+  const why = isAnalyst() ? "Only a reviewer can approve — analysts cannot approve their own work."
+    : !pending ? `This report is ${STATUS[r.status].toLowerCase()}; only reports pending review can be approved.` : "";
+  const pass = p.checks.filter((k) => k.status === "pass").length;
+  el.innerHTML = `<div class="card">
+      <div class="card-head"><div><h2>Report #${r.id} · ${esc(p.period.label)} ${pill(r.status)}</h2>
+        <div class="small muted">Prepared by ${esc(p.generated_by.name)} · ${pass}/${p.checks.length} accuracy checks passed</div></div>
+        <a class="btn" target="_blank" href="${base()}/reports/${r.id}/export?format=html&preview=1">Open full report</a></div>
+      ${verdictBlock(p)}
+      <div class="ww"><div><h3>✓ Wins</h3><ul class="narr">${p.insights.wins.map((l) => `<li>${esc(l)}</li>`).join("")}</ul></div>
+        <div><h3>! Watch-outs</h3><ul class="narr">${p.insights.watch_outs.map((l) => `<li>${esc(l)}</li>`).join("")}</ul></div></div>
+      <h3 style="margin-top:14px">Accuracy checks</h3>${checksBlock(p)}
+    </div>
+    <div class="card"><h3>Reviewer decision</h3>
+      ${r.reviewed_by ? `<p style="margin-top:0">${r.status === "approved" ? "✓ Approved" : "✗ Rejected"} by <b>${esc(userName(r.reviewed_by))}</b> · ${fWhen(r.reviewed_at)}${r.review_comment ? ` — “${esc(r.review_comment)}”` : ""}</p>` : ""}
+      ${pending ? `<label for="cmt">Comment ${isAnalyst() ? "" : "(required to reject)"}</label><textarea id="cmt" ${canReview ? "" : "disabled"} placeholder="e.g. Figures checked against source — OK to send."></textarea>
+      <div class="row" style="margin-top:10px">
+        <button class="btn good" id="approve" ${canReview ? "" : "disabled"} title="${esc(why)}">✓ Approve</button>
+        <button class="btn danger" id="reject" ${canReview ? "" : "disabled"} title="${esc(why)}">✗ Reject</button></div>` : ""}
+      ${why ? `<div class="hint">🔒 ${esc(why)}</div>` : ""}
+      ${r.status === "approved" ? `<div class="row" style="margin-top:10px"><button class="btn primary" onclick="go(4)">Go to export →</button></div>` : ""}
+      ${r.status === "rejected" && isAnalyst() ? `<div class="row" style="margin-top:10px"><button class="btn primary" onclick="go(2)">Regenerate in step 2 →</button></div>` : ""}
+    </div>
+    <div class="card"><h3>Audit trail</h3><ul class="timeline">${r.events.map((e) =>
+      `<li><b>${esc(e.action.replaceAll("_", " "))}</b> by ${esc(e.actor === "system" ? "system" : userName(e.actor))}${e.comment ? ` — ${esc(e.comment)}` : ""}<div class="when">${fWhen(e.at)}</div></li>`).join("")}</ul></div>
+    ${docFrame(r)}`;
+  fitFrames();
+  const decide = (action) => async () => {
+    try { await api("POST", `${base()}/reports/${r.id}/${action}`, { comment: $("cmt").value });
+      toast(action === "approve" ? "Report approved ✓" : "Report rejected"); await refresh(); } catch (e) { fail(e); }
+  };
+  if ($("approve")) { $("approve").onclick = decide("approve"); $("reject").onclick = decide("reject"); }
+}
+
+/* ---------------- step 4 ---------------- */
+function renderExport() {
+  const r = S.selReport, el = $("export-pane");
+  if (!r) { el.innerHTML = `<div class="card muted">No report selected.</div>`; return; }
+  const url = (f, extra = "") => `${base()}/reports/${r.id}/export?format=${f}${extra}`;
+  const ok = r.status === "approved";
+  el.innerHTML = `<div class="card"><div class="card-head"><div><h2>4 · Export report #${r.id} · ${esc(r.payload.period.label)} ${pill(r.status)}</h2>
+      <div class="small muted">Approved reports are saved to <code>exports/${esc(S.me.client_id)}/</code> and stamped with the approver and a SHA-256 content hash.</div></div></div>
+    ${ok ? `<div class="banner good" style="margin-bottom:14px"><div><b>✓ Approved by ${esc(userName(r.reviewed_by))} · ${fWhen(r.reviewed_at)}</b>Ready to send to ${esc(r.payload.client_name)}.</div></div>
+      <div class="export-btns">
+        <a class="btn primary" target="_blank" href="${url("html", "&inline=1")}">Open client report (HTML / print to PDF)</a>
+        <a class="btn" href="${url("html")}">⬇ HTML</a><a class="btn" href="${url("csv")}">⬇ CSV</a><a class="btn" href="${url("json")}">⬇ JSON</a></div>`
+      : `<div class="lock">🔒 <span>Export is locked until a reviewer approves this report (current status: <b>${STATUS[r.status]}</b>).</span></div>
+      <div class="export-btns"><button class="btn" disabled>⬇ HTML</button><button class="btn" disabled>⬇ CSV</button><button class="btn" disabled>⬇ JSON</button>
+        <a class="btn" target="_blank" href="${url("html", "&preview=1")}">Preview draft (watermarked)</a></div>`}
+    <div class="hint" style="margin-top:12px">Content hash: <code>${esc(r.content_hash)}</code></div></div>`;
+}
+
+/* ---------------- isolation test ---------------- */
+$("iso-btn").onclick = async () => {
+  const [other, name] = OTHER[S.me.client_id];
+  try { await api("GET", `/api/clients/${other}/reports`); banner("bad", "Unexpected", "Access was allowed — this should never happen."); }
+  catch (e) {
+    if (e.status === 403) banner("bad", `⛔ Access denied (HTTP 403) — tried to read ${name}'s reports`, " " + e.message);
+    else fail(e);
+  }
+};
+
+/* ---------------- boot ---------------- */
+(async () => {
+  try { S.me = await api("GET", "/api/me"); await enterApp(); } catch { showLogin(); }
+})();
+</script>
+</body>
+</html>

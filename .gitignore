@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Created when the app runs (rebuilt by `python3 cli.py reset`)
+data/tenants/
+exports/
+
+# Website: installed packages and build cache.
+# frontend/dist/ is committed on purpose, so the app runs without Node.js.
+frontend/node_modules/
+frontend/.tanstack/
+*.log
+
+# Editors and operating systems
+.DS_Store
+.vscode/
+.idea/
+*.swp
+
+# Notes for recording the demo video (kept local)
+DEMO_SCRIPT.md
+Demo_video.mov
